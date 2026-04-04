@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
+
 const userRoutes = require('./userRoutes');
 const authRoutes = require('./authRoutes');
-const { verifyToken } = require('../middlewares/authMiddleware');
+const transactionRoutes = require('./transactionRoutes');
+const dashboardRoutes = require('./dashboardRoutes');
 
-// Auth routes (public)
+// Public routes
 router.use('/auth', authRoutes);
 
-// Protected routes
-router.use('/users', verifyToken, userRoutes);
+// Protected routes (handled inside each route file)
+router.use('/users', userRoutes);
+router.use('/transactions', transactionRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 module.exports = router;

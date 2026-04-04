@@ -6,7 +6,7 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Connect to MongoDB
+// DB connect
 connectDB();
 
 // Middleware
@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Routes
+// ALL routes handled here
 app.use('/api', routes);
 
 // Health check
@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Server running', status: 'OK' });
 });
 
-// 404 handler
+// 404
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
