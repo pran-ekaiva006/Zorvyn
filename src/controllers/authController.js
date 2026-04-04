@@ -1,21 +1,22 @@
 const authService = require('../services/authService');
 
-const register = async (req, res, next) => {
+// REGISTER
+const register = async (req, res) => {
+  console.log("🚀 CONTROLLER START");
+
   try {
-    console.log('🔍 Register request received:', req.body);
-    
     const { name, email, password, role } = req.body;
 
-    // Validate required fields
+   
+    console.log('Register request:', { name, email, role });
+
     if (!name || !email || !password) {
-      console.log('❌ Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'Please provide name, email, and password',
       });
     }
 
-    console.log('📝 Calling authService.registerUser...');
     const user = await authService.registerUser({
       name,
       email,
@@ -23,23 +24,43 @@ const register = async (req, res, next) => {
       role,
     });
 
-    console.log('✓ User registered:', user.email);
-    res.status(201).json({
+    console.log('✓ User registered:', user?.email);
+
+    
+    const { password: _, ...safeUser } = user;
+
+    return res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      data: user,
+      data: safeUser,
     });
+
   } catch (error) {
-    console.error('❌ Registration error:', error.message);
-    next(error);
+    console.error('FULL ERROR:', error.message);
+
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email already exists',
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal Server Error',
+    });
   }
 };
 
-const login = async (req, res, next) => {
+
+// LOGIN
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate required fields
+    // Safe logging
+    console.log('Login request:', { email });
+
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -49,16 +70,25 @@ const login = async (req, res, next) => {
 
     const { user, token } = await authService.loginUser(email, password);
 
-    res.status(200).json({
+    
+    const { password: _, ...safeUser } = user;
+
+    return res.status(200).json({
       success: true,
       message: 'User logged in successfully',
       data: {
-        user,
+        user: safeUser,
         token,
       },
     });
+
   } catch (error) {
-    next(error);
+    console.error('FULL ERROR:', error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal Server Error',
+    });
   }
 };
 
