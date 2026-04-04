@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         'Please provide a valid email',
       ],
+      index: true, // Remove duplicate - keep only this
     },
     password: {
       type: String,
@@ -39,6 +40,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.index({ email: 1 });
+// Remove this line - userSchema.index({ email: 1 });
 
 module.exports = mongoose.model('User', userSchema);

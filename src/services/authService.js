@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const registerUser = async (userData) => {
   try {
+    console.log('📝 Registering user:', userData.email);
+    
     // Check if user already exists
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
@@ -22,11 +24,14 @@ const registerUser = async (userData) => {
       role: userData.role || 'viewer',
     });
 
+    console.log('✓ User created successfully:', user._id);
+
     // Return user without password
     const userObj = user.toObject();
     delete userObj.password;
     return userObj;
   } catch (error) {
+    console.error('✗ Registration error:', error.message);
     throw new Error(error.message);
   }
 };
