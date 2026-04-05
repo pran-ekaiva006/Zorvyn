@@ -2,22 +2,37 @@ const express = require('express');
 const router = express.Router();
 
 const dashboardController = require('../controllers/dashboardController');
-const { verifyToken, authorize } = require('../middlewares/authMiddleware');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-// Summary
+// 🔍 DEBUG (check all handlers are functions)
+console.log("DASHBOARD DEBUG:", {
+  getDashboard: dashboardController.getDashboard,
+  getCategory: dashboardController.getCategory,
+  getTrends: dashboardController.getTrends,
+});
+
+// 🔹 Dashboard Summary
 router.get(
   '/summary',
-  verifyToken,
-  authorize('admin', 'analyst', 'viewer'),
-  dashboardController.getSummary
+  authMiddleware.verifyToken,
+  authMiddleware.authorize('admin', 'analyst', 'viewer'),
+  dashboardController.getDashboard
 );
 
-// Category
+// 🔹 Category Breakdown
 router.get(
   '/category',
-  verifyToken,
-  authorize('admin', 'analyst'),
+  authMiddleware.verifyToken,
+  authMiddleware.authorize('admin', 'analyst'),
   dashboardController.getCategory
 );
 
-module.exports = router; 
+// 🔹 Monthly Trends
+router.get(
+  '/trends',
+  authMiddleware.verifyToken,
+  authMiddleware.authorize('admin', 'analyst'),
+  dashboardController.getTrends
+);
+
+module.exports = router;
