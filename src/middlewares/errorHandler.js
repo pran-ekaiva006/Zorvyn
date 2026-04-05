@@ -4,20 +4,9 @@ const errorHandler = (err, req, res, next) => {
   let error = err;
 
   // Log error for developers
-  console.error('❌ ERROR HANDLER:', err);
+  console.error('ERROR HANDLER:', err);
 
-  // 1. Zod Validation Errors
-  if (error.name === 'ZodError') {
-    const errorsList = error.issues || error.errors || [];
-    const formattedErrors = errorsList.map((e) => ({
-      path: e.path.join('.'),
-      message: e.message,
-    }));
-    error = new AppError('Validation Error', 400);
-    error.errors = formattedErrors;
-  }
-
-  // 2. Mongoose Validation Error
+  // 1. Mongoose Validation Error
   if (error.name === 'ValidationError') {
     const formattedErrors = Object.values(error.errors || {}).map((e) => ({
       path: e.path,
@@ -47,6 +36,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Final Response formatting
+  console.error({ isOperational: error.isOperational, statusCode: error.statusCode, message: error.message });
   const statusCode = error.statusCode || 500;
   const message = error.isOperational ? error.message : 'Internal Server Error';
 
