@@ -15,7 +15,15 @@ const getTransactions = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
 
-  const result = await transactionService.getTransactions(req.user.id, page, limit);
+  // Filter params
+  const filters = {
+    type: req.query.type,
+    category: req.query.category,
+    startDate: req.query.startDate,
+    endDate: req.query.endDate,
+  };
+
+  const result = await transactionService.getTransactions(req.user.id, page, limit, filters);
 
   res.status(200).json({
     success: true,

@@ -10,9 +10,27 @@ const createTransaction = async (data, userId) => {
   return transaction;
 };
 
-const getTransactions = async (userId, page = 1, limit = 10) => {
+const getTransactions = async (userId, page = 1, limit = 10, filters = {}) => {
   const skip = (page - 1) * limit;
   const query = { user: userId, isDeleted: false };
+
+  if (filters.type) {
+    query.type = filters.type;
+  }
+
+  if (filters.category) {
+    query.category = filters.category;
+  }
+
+  if (filters.startDate || filters.endDate) {
+    query.date = {};
+    if (filters.startDate) {
+      query.date.$gte = new Date(filters.startDate);
+    }
+    if (filters.endDate) {
+      query.date.$lte = new Date(filters.endDate);
+    }
+  }
 
   const transactions = await Transaction.find(query)
     .sort({ date: -1 })
@@ -40,7 +58,6 @@ const deleteTransaction = async (transactionId, userId) => {
     throw new AppError('Transaction not found or already deleted', 404);
   }
 
-  // Soft delete
   transaction.isDeleted = true;
   await transaction.save();
 };
