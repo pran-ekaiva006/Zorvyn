@@ -6,12 +6,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
 const { createTransactionSchema } = require('../validations/transactionValidation');
 
-console.log("DEBUG:", {
-  create: transactionController.createTransaction,
-  get: transactionController.getTransactions,
-  verifyToken: authMiddleware.verifyToken,
-  authorize: authMiddleware.authorize
-});
+
 
 // Admin only
 router.post(

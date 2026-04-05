@@ -6,7 +6,7 @@ const createTransactionSchema = z.object({
     errorMap: () => ({ message: "Type must be either 'income' or 'expense'" })
   }),
   category: z.string().min(1, 'Category is required'),
-  date: z.string().datetime().optional().or(z.date().optional()),
+  date: z.coerce.date().optional(),
   description: z.string().optional(),
 });
 
