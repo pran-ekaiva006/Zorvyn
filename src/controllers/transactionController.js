@@ -44,8 +44,19 @@ const deleteTransaction = catchAsync(async (req, res) => {
   });
 });
 
+const updateTransaction = catchAsync(async (req, res) => {
+  const transaction = await transactionService.updateTransaction(req.params.id, req.user.id, req.body);
+
+  res.status(200).json({
+    success: true,
+    message: 'Transaction successfully updated',
+    data: transaction,
+  });
+});
+
 module.exports = {
   createTransaction,
   getTransactions,
   deleteTransaction,
+  updateTransaction,
 };

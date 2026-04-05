@@ -10,6 +10,9 @@ const createTransactionSchema = z.object({
   description: z.string().optional(),
 });
 
+const updateTransactionSchema = createTransactionSchema.partial();
+
 module.exports = {
   createTransactionSchema,
+  updateTransactionSchema,
 };

@@ -62,8 +62,23 @@ const deleteTransaction = async (transactionId, userId) => {
   await transaction.save();
 };
 
+const updateTransaction = async (transactionId, userId, updateData) => {
+  const transaction = await Transaction.findOneAndUpdate(
+    { _id: transactionId, user: userId, isDeleted: false },
+    updateData,
+    { new: true, runValidators: true }
+  );
+
+  if (!transaction) {
+    throw new AppError('Transaction not found or already deleted', 404);
+  }
+
+  return transaction;
+};
+
 module.exports = {
   createTransaction,
   getTransactions,
   deleteTransaction,
+  updateTransaction,
 };

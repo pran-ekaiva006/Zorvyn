@@ -4,7 +4,7 @@ const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
-const { createTransactionSchema } = require('../validations/transactionValidation');
+const { createTransactionSchema, updateTransactionSchema } = require('../validations/transactionValidation');
 
 
 
@@ -31,6 +31,15 @@ router.delete(
   authMiddleware.verifyToken,
   authMiddleware.authorize('admin'),
   transactionController.deleteTransaction
+);
+
+// Admin only Update
+router.put(
+  '/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.authorize('admin'),
+  validateRequest(updateTransactionSchema),
+  transactionController.updateTransaction
 );
 
 module.exports = router;
