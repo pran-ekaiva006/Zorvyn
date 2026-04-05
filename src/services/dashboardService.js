@@ -74,7 +74,40 @@ const getCategoryBreakdown = async (userId) => {
   ]);
 };
 
+
+const getMonthlyTrends = async (userId) => {
+  const mongoose = require('mongoose');
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  return await Transaction.aggregate([
+    {
+      $match: { user: userObjectId }
+    },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" }
+        },
+        income: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "income"] }, "$amount", 0]
+          }
+        },
+        expense: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "expense"] }, "$amount", 0]
+          }
+        }
+      }
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1 }
+    }
+  ]);
+};
 module.exports = {
   getDashboardSummary,
   getCategoryBreakdown,
+  getMonthlyTrends
 };

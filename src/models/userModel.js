@@ -12,19 +12,19 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, 'Please provide an email'],
-      unique: true,
+      unique: true, // this already creates index
       lowercase: true,
+      trim: true,
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         'Please provide a valid email',
       ],
-      index: true, // Remove duplicate - keep only this
     },
     password: {
       type: String,
       required: [true, 'Please provide a password'],
       minlength: [6, 'Password must be at least 6 characters'],
-      select: false,
+      select: false, 
     },
     role: {
       type: String,
@@ -37,9 +37,9 @@ const userSchema = new mongoose.Schema(
       default: 'active',
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
-
-// Remove this line - userSchema.index({ email: 1 });
 
 module.exports = mongoose.model('User', userSchema);

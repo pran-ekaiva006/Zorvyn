@@ -2,20 +2,13 @@ const authService = require('../services/authService');
 
 // REGISTER
 const register = async (req, res) => {
-  console.log("🚀 CONTROLLER START");
+  console.log("CONTROLLER START");
 
   try {
     const { name, email, password, role } = req.body;
 
    
     console.log('Register request:', { name, email, role });
-
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide name, email, and password',
-      });
-    }
 
     const user = await authService.registerUser({
       name,
@@ -60,13 +53,6 @@ const login = async (req, res) => {
 
     // Safe logging
     console.log('Login request:', { email });
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide email and password',
-      });
-    }
 
     const { user, token } = await authService.loginUser(email, password);
 

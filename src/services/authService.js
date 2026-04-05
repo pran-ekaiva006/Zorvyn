@@ -2,67 +2,82 @@ const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
+//  REGISTER USER
 const registerUser = async (userData) => {
   try {
-    console.log('📝 Registering user:', userData.email);
-    
     // Check if user already exists
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
-      throw new Error('User already exists with this email');
+      const error = new Error('Email already exists');
+      error.code = 11000;
+      throw error;
     }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(userData.password, salt);
 
-    // Create user
+    //  Prevent role injection
     const user = await User.create({
       name: userData.name,
       email: userData.email,
       password: hashedPassword,
-      role: userData.role || 'viewer',
+      role: 'viewer', // always default
     });
 
-    console.log('✓ User created successfully:', user._id);
-
-    // Return user without password
+    // Remove password before returning
     const userObj = user.toObject();
     delete userObj.password;
+
     return userObj;
+
   } catch (error) {
-    console.error('✗ Registration error:', error.message);
-    throw new Error(error.message);
+    throw error;
   }
 };
 
+
+//  LOGIN USER
 const loginUser = async (email, password) => {
   try {
-    // Find user by email
+    // Check if JWT secret exists
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined");
+    }
+
+    // Find user
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       throw new Error('Invalid email or password');
     }
 
-    // Check if user is active
+    // Check user status (optional but good)
     if (user.status === 'inactive') {
       throw new Error('User account is inactive');
     }
 
-    // Compare passwords
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatch) {
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       throw new Error('Invalid email or password');
     }
 
-    // Generate JWT token
+    //  Generate JWT (with role for RBAC)
+    if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return user and token
+    // Remove password from response
     const userObj = user.toObject();
     delete userObj.password;
 
@@ -70,10 +85,12 @@ const loginUser = async (email, password) => {
       user: userObj,
       token,
     };
+
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 };
+
 
 module.exports = {
   registerUser,

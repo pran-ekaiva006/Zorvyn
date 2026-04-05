@@ -3,6 +3,8 @@ const router = express.Router();
 
 const transactionController = require('../controllers/transactionController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const validateRequest = require('../middlewares/validateRequest');
+const { createTransactionSchema } = require('../validations/transactionValidation');
 
 console.log("DEBUG:", {
   create: transactionController.createTransaction,
@@ -16,6 +18,7 @@ router.post(
   '/',
   authMiddleware.verifyToken,
   authMiddleware.authorize('admin'),
+  validateRequest(createTransactionSchema),
   transactionController.createTransaction
 );
 

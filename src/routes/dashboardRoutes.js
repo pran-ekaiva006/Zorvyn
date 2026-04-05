@@ -4,14 +4,14 @@ const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-// 🔍 DEBUG (check all handlers are functions)
-console.log("DASHBOARD DEBUG:", {
-  getDashboard: dashboardController.getDashboard,
-  getCategory: dashboardController.getCategory,
-  getTrends: dashboardController.getTrends,
-});
+// // DEBUG (check all handlers are functions)
+// console.log("DASHBOARD DEBUG:", {
+//   getDashboard: dashboardController.getDashboard,
+//   getCategory: dashboardController.getCategory,
+//   getTrends: dashboardController.getTrends,
+// });
 
-// 🔹 Dashboard Summary
+// Dashboard Summary
 router.get(
   '/summary',
   authMiddleware.verifyToken,
@@ -19,7 +19,7 @@ router.get(
   dashboardController.getDashboard
 );
 
-// 🔹 Category Breakdown
+// Category Breakdown
 router.get(
   '/category',
   authMiddleware.verifyToken,
@@ -27,7 +27,7 @@ router.get(
   dashboardController.getCategory
 );
 
-// 🔹 Monthly Trends
+//  Monthly Trends
 router.get(
   '/trends',
   authMiddleware.verifyToken,
