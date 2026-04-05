@@ -30,4 +30,12 @@ router.get(
   transactionController.getTransactions
 );
 
+// Admin only Delete
+router.delete(
+  '/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.authorize('admin'),
+  transactionController.deleteTransaction
+);
+
 module.exports = router;
