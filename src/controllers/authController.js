@@ -1,15 +1,15 @@
 const authService = require('../services/authService');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
 
 // REGISTER
-const register = async (req, res) => {
+const register = catchAsync(async (req, res) => {
   console.log("CONTROLLER START");
 
+  const { name, email, password, role } = req.body;
+  console.log('Register request:', { name, email, role });
+
   try {
-    const { name, email, password, role } = req.body;
-
-   
-    console.log('Register request:', { name, email, role });
-
     const user = await authService.registerUser({
       name,
       email,
@@ -19,7 +19,6 @@ const register = async (req, res) => {
 
     console.log('✓ User registered:', user?.email);
 
-    
     const { password: _, ...safeUser } = user;
 
     return res.status(201).json({
@@ -27,56 +26,34 @@ const register = async (req, res) => {
       message: 'User registered successfully',
       data: safeUser,
     });
-
   } catch (error) {
-    console.error('FULL ERROR:', error.message);
-
     if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already exists',
-      });
+      throw new AppError('Email already exists', 400);
     }
-
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Internal Server Error',
-    });
+    throw error;
   }
-};
-
+});
 
 // LOGIN
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+const login = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
 
-    // Safe logging
-    console.log('Login request:', { email });
+  // Safe logging
+  console.log('Login request:', { email });
 
-    const { user, token } = await authService.loginUser(email, password);
+  const { user, token } = await authService.loginUser(email, password);
 
-    
-    const { password: _, ...safeUser } = user;
+  const { password: _, ...safeUser } = user;
 
-    return res.status(200).json({
-      success: true,
-      message: 'User logged in successfully',
-      data: {
-        user: safeUser,
-        token,
-      },
-    });
-
-  } catch (error) {
-    console.error('FULL ERROR:', error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Internal Server Error',
-    });
-  }
-};
+  return res.status(200).json({
+    success: true,
+    message: 'User logged in successfully',
+    data: {
+      user: safeUser,
+      token,
+    },
+  });
+});
 
 module.exports = {
   register,

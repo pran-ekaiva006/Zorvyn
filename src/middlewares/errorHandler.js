@@ -1,51 +1,62 @@
+const AppError = require('../utils/AppError');
+
 const errorHandler = (err, req, res, next) => {
+  let error = err;
+
+  // Log error for developers
   console.error('❌ ERROR HANDLER:', err);
 
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors).map(e => e.message);
-    return res.status(400).json({
-      success: false,
-      message: messages.join(', '),
-    });
+  // 1. Zod Validation Errors
+  if (error.name === 'ZodError') {
+    const errorsList = error.issues || error.errors || [];
+    const formattedErrors = errorsList.map((e) => ({
+      path: e.path.join('.'),
+      message: e.message,
+    }));
+    error = new AppError('Validation Error', 400);
+    error.errors = formattedErrors;
   }
 
-  // Duplicate key error
-  if (err.code === 11000) {
-    const field = err.keyPattern ? Object.keys(err.keyPattern)[0] : 'Field';
-    return res.status(400).json({
-      success: false,
-      message: `${field} already exists`,
-    });
+  // 2. Mongoose Validation Error
+  if (error.name === 'ValidationError') {
+    const formattedErrors = Object.values(error.errors || {}).map((e) => ({
+      path: e.path,
+      message: e.message,
+    }));
+    error = new AppError('Validation Error', 400);
+    error.errors = formattedErrors;
   }
 
-  // Invalid ObjectId
-  if (err.name === 'CastError') {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid ID format',
-    });
+  // 3. Mongoose Duplicate Key Error
+  if (error.code === 11000) {
+    const field = error.keyPattern ? Object.keys(error.keyPattern)[0] : 'Field';
+    error = new AppError(`${field} already exists`, 400);
   }
 
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token',
-    });
+  // 4. Mongoose CastError (Invalid ID)
+  if (error.name === 'CastError') {
+    error = new AppError(`Invalid ${error.path}: ${error.value}`, 400);
   }
 
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Token expired',
-    });
+  // 5. JWT Errors
+  if (error.name === 'JsonWebTokenError') {
+    error = new AppError('Invalid token, please log in again', 401);
+  }
+  if (error.name === 'TokenExpiredError') {
+    error = new AppError('Token expired, please log in again', 401);
   }
 
-  return res.status(err.status || 500).json({
+  // Final Response formatting
+  const statusCode = error.statusCode || 500;
+  const message = error.isOperational ? error.message : 'Internal Server Error';
+
+  const response = {
     success: false,
-    message: err.message || 'Internal Server Error',
-  });
+    message,
+    ...(error.errors && { errors: error.errors }),
+  };
+
+  res.status(statusCode).json(response);
 };
 
 module.exports = errorHandler;

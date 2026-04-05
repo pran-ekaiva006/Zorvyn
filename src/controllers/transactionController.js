@@ -1,39 +1,26 @@
 const Transaction = require('../models/transactionModel');
+const catchAsync = require('../utils/catchAsync');
 
-const createTransaction = async (req, res) => {
-  try {
-    const transaction = await Transaction.create({
-      ...req.body,
-      user: req.user.id,
-    });
+const createTransaction = catchAsync(async (req, res) => {
+  const transaction = await Transaction.create({
+    ...req.body,
+    user: req.user.id,
+  });
 
-    res.status(201).json({
-      success: true,
-      data: transaction,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  res.status(201).json({
+    success: true,
+    data: transaction,
+  });
+});
 
-const getTransactions = async (req, res) => {
-  try {
-    const transactions = await Transaction.find({ user: req.user.id });
+const getTransactions = catchAsync(async (req, res) => {
+  const transactions = await Transaction.find({ user: req.user.id });
 
-    res.status(200).json({
-      success: true,
-      data: transactions,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  res.status(200).json({
+    success: true,
+    data: transactions,
+  });
+});
 
 module.exports = {
   createTransaction,

@@ -1,55 +1,35 @@
 const dashboardService = require('../services/dashboardService');
+const catchAsync = require('../utils/catchAsync');
 
 // Dashboard Summary
-const getDashboard = async (req, res) => {
-  try {
-    const data = await dashboardService.getDashboardSummary(req.user.id);
+const getDashboard = catchAsync(async (req, res) => {
+  const data = await dashboardService.getDashboardSummary(req.user.id);
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  res.status(200).json({
+    success: true,
+    data,
+  });
+});
 
 // Category Breakdown
-const getCategory = async (req, res) => {
-  try {
-    const data = await dashboardService.getCategoryBreakdown(req.user.id);
+const getCategory = catchAsync(async (req, res) => {
+  const data = await dashboardService.getCategoryBreakdown(req.user.id);
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  res.status(200).json({
+    success: true,
+    data,
+  });
+});
 
 // Monthly Trends
-const getTrends = async (req, res) => {
-  try {
-    const data = await dashboardService.getMonthlyTrends(req.user.id);
+const getTrends = catchAsync(async (req, res) => {
+  const data = await dashboardService.getMonthlyTrends(req.user.id);
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  res.status(200).json({
+    success: true,
+    data,
+  });
+});
 
 module.exports = {
   getDashboard,

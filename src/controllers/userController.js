@@ -1,49 +1,30 @@
 const userService = require('../services/userService');
+const catchAsync = require('../utils/catchAsync');
 
-const getAllUsers = async (req, res, next) => {
-  try {
-    const users = await userService.getAllUsers();
-    res.status(200).json({ success: true, data: users });
-  } catch (error) {
-    next(error);
-  }
-};
+const getAllUsers = catchAsync(async (req, res) => {
+  const users = await userService.getAllUsers();
+  res.status(200).json({ success: true, data: users });
+});
 
-const getUserById = async (req, res, next) => {
-  try {
-    const user = await userService.getUserById(req.params.id);
-    res.status(200).json({ success: true, data: user });
-  } catch (error) {
-    next(error);
-  }
-};
+const getUserById = catchAsync(async (req, res) => {
+  const user = await userService.getUserById(req.params.id);
+  res.status(200).json({ success: true, data: user });
+});
 
-const createUser = async (req, res, next) => {
-  try {
-    const user = await userService.createUser(req.body);
-    res.status(201).json({ success: true, message: 'User created', data: user });
-  } catch (error) {
-    next(error);
-  }
-};
+const createUser = catchAsync(async (req, res) => {
+  const user = await userService.createUser(req.body);
+  res.status(201).json({ success: true, message: 'User created', data: user });
+});
 
-const updateUser = async (req, res, next) => {
-  try {
-    const user = await userService.updateUser(req.params.id, req.body);
-    res.status(200).json({ success: true, message: 'User updated', data: user });
-  } catch (error) {
-    next(error);
-  }
-};
+const updateUser = catchAsync(async (req, res) => {
+  const user = await userService.updateUser(req.params.id, req.body);
+  res.status(200).json({ success: true, message: 'User updated', data: user });
+});
 
-const deleteUser = async (req, res, next) => {
-  try {
-    await userService.deleteUser(req.params.id);
-    res.status(200).json({ success: true, message: 'User deleted' });
-  } catch (error) {
-    next(error);
-  }
-};
+const deleteUser = catchAsync(async (req, res) => {
+  await userService.deleteUser(req.params.id);
+  res.status(200).json({ success: true, message: 'User deleted' });
+});
 
 module.exports = {
   getAllUsers,
